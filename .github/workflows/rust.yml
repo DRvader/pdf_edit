@@ -56,8 +56,8 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: to-deploy
-          path: to_deploy
-      - run: cd to_deploy && mv web PDF
+          path: to_deploy/web
+      - run: cd to_deploy && ls -l && mv web PDF
       - run: |
           git config --global url."https://".insteadOf git://
           ## $GITHUB_SERVER_URL is set as a default environment variable in all workflows, default is https://github.com
