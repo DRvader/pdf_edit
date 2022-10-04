@@ -71,7 +71,7 @@ jobs:
           mv ../to_deploy/PDF PDF
 
           ORIGIN_COMMIT="https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
-          COMMIT_MESSAGE="${COMMIT_MESSAGE/ORIGIN_COMMIT/$ORIGIN_COMMIT}"
+          COMMIT_MESSAGE="$ORIGIN_COMMIT - ${{ github.event.head_commit.message }}"
 
           git add .
           git status
