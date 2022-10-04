@@ -56,14 +56,13 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: to-deploy
-          path: to_deploy/web
-      - run: cd to_deploy && ls -l web && mv web PDF
+          path: to_deploy/PDF
       - run: |
-          git config --global url."https://".insteadOf git://
+          # git config --global url."https://".insteadOf git://
           ## $GITHUB_SERVER_URL is set as a default environment variable in all workflows, default is https://github.com
-          git config --global url."$GITHUB_SERVER_URL/".insteadOf "git@${GITHUB_HOSTNAME}":
+          # git config --global url."$GITHUB_SERVER_URL/".insteadOf "git@${GITHUB_HOSTNAME}":
     
-          remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${GITHUB_HOSTNAME}/${TARGET_REPOSITORY}.git"
+          remote_repo="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@${GITHUB_HOSTNAME}/${TARGET_REPOSITORY}.git"
           remote_branch=${PAGES_BRANCH}
          
           echo "Pushing artifacts to ${TARGET_REPOSITORY}:$remote_branch"
