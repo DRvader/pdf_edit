@@ -58,14 +58,14 @@ jobs:
           name: to-deploy
           path: to_deploy/PDF
       - run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
           remote_repo="https://${GITHUB_ACTOR}:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${TARGET_REPOSITORY}.git"
           git clone --single-branch --branch "${PAGES_BRANCH}" "${remote_repo}" "${CLONE_DIRECTORY}"
           ls -la "${CLONE_DIRECTORY}"
 
           cd $CLONE_DIRECTORY
+          
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
           rm -rvf PDF 
           mv ../to_deploy/PDF PDF
