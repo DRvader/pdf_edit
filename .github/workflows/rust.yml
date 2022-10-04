@@ -6,6 +6,10 @@ on:
   
   workflow_dispatch:
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
 
