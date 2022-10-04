@@ -1,0 +1,57 @@
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+</head>
+
+<body>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    import init, { remove_pages } from './generated/pdf_edit.js';
+
+    async function run() {
+      await init();
+    }
+
+    run();
+
+    const download = (path, filename) => {
+      // Create a new link
+      const anchor = document.createElement('a');
+      anchor.href = path;
+      anchor.download = filename;
+
+      // Append to the DOM
+      document.body.appendChild(anchor);
+
+      // Trigger `click` event
+      anchor.click();
+
+      // Remove element from DOM
+      document.body.removeChild(anchor);
+    };
+
+
+    document.getElementById("pdf_change").addEventListener('click', async () => {
+      const output = await remove_pages("file_select", "to_remove");
+      const url = URL.createObjectURL(output.data);
+
+      download(url, output.name);
+
+      URL.revokeObjectURL(url);
+    });
+  </script>
+
+  Select pdf to modify <input type="file" id="file_select" /><br />
+  Enter the pages to remove (comma seperated) <input type="text" id="to_remove" /><br />
+  <button id="pdf_change">Download Modified PDF</button>
+</body>
+
+</html>
