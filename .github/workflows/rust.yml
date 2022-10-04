@@ -1,0 +1,61 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - uses: jetli/wasm-bindgen-action@v0.1.0
+      
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - run: cargo build --release
+      
+      - run: wasm-bindgen --target web --out-dir web/generated ./target/wasm32-unknown-unknown/release/pdf_edit.wasm
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      GITHUB_HOSTNAME: "github.com"
+      TARGET_REPOSITORY: "drvader.github.io"
+      PAGES_BRANCH: "main"
+    steps:
+      - run: |
+          git config --global url."https://".insteadOf git://
+          ## $GITHUB_SERVER_URL is set as a default environment variable in all workflows, default is https://github.com
+          git config --global url."$GITHUB_SERVER_URL/".insteadOf "git@${GITHUB_HOSTNAME}":
+    
+          remote_repo="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${GITHUB_HOSTNAME}/${TARGET_REPOSITORY}.git"
+          remote_branch=${PAGES_BRANCH}
+         
+          echo "Pushing artifacts to ${TARGET_REPOSITORY}:$remote_branch"
+
+          rm -rf to_pages
+          mkdir -p to_pages/PDF
+          cp -r web/* to_pages/PDF
+          cd to_pages
+
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions-bot@users.noreply.${GITHUB_HOSTNAME}"
+          git add .
+
+          git commit -m "Deploy ${TARGET_REPOSITORY} to ${TARGET_REPOSITORY}:$remote_branch"
+          git push --force "${remote_repo}" master:"${remote_branch}"
+
+          echo "Deploy complete"
