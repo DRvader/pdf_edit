@@ -58,14 +58,8 @@ jobs:
           name: to-deploy
           path: to_deploy/PDF
       - run: |
-          # git config --global url."https://".insteadOf git://
-          ## $GITHUB_SERVER_URL is set as a default environment variable in all workflows, default is https://github.com
-          # git config --global url."$GITHUB_SERVER_URL/".insteadOf "git@${GITHUB_HOSTNAME}":
-    
-          remote_repo="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@${GITHUB_HOSTNAME}/${TARGET_REPOSITORY}.git"
-          remote_branch=${PAGES_BRANCH}
-         
-          echo "Pushing artifacts to ${TARGET_REPOSITORY}:$remote_branch"
+          remote_repo="https://${GITHUB_ACTOR}:${{ secrets.PERSONAL_ACCESS_TOKEN }}@${GITHUB_HOSTNAME}/${TARGET_REPOSITORY}.git"
+          echo "Pushing artifacts to ${TARGET_REPOSITORY}:${PAGES_BRANCH}"
           
           cd to_deploy
 
@@ -74,7 +68,7 @@ jobs:
           git config user.email "github-actions-bot@users.noreply.${GITHUB_HOSTNAME}"
           git add .
 
-          git commit -m "Deploy ${TARGET_REPOSITORY} to ${TARGET_REPOSITORY}:$remote_branch"
-          git push --force "${remote_repo}" master:"${remote_branch}"
+          git commit -m "Deploy ${TARGET_REPOSITORY} to ${TARGET_REPOSITORY}:${PAGES_BRANCH}"
+          git push --force "${remote_repo}" master:"${PAGES_BRANCH}"
 
           echo "Deploy complete"
