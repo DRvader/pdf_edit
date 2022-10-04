@@ -25,6 +25,11 @@ jobs:
       - run: cargo build --release
       
       - run: wasm-bindgen --target web --out-dir web/generated ./target/wasm32-unknown-unknown/release/pdf_edit.wasm
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: to-deploy
+          path: web/
   
   deploy:
     needs: build
@@ -35,6 +40,11 @@ jobs:
       TARGET_REPOSITORY: "drvader.github.io"
       PAGES_BRANCH: "main"
     steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: to-deploy
+          path: to_deploy
+      - run: mv web PDF
       - run: |
           git config --global url."https://".insteadOf git://
           ## $GITHUB_SERVER_URL is set as a default environment variable in all workflows, default is https://github.com
@@ -44,11 +54,8 @@ jobs:
           remote_branch=${PAGES_BRANCH}
          
           echo "Pushing artifacts to ${TARGET_REPOSITORY}:$remote_branch"
-
-          rm -rf to_pages
-          mkdir -p to_pages/PDF
-          cp -r web/* to_pages/PDF
-          cd to_pages
+          
+          cd to_deploy
 
           git init
           git config user.name "GitHub Actions"
